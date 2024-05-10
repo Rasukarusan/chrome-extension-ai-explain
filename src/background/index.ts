@@ -12,7 +12,8 @@ async function explain(tabId: number, selectedText: string) {
     },
   });
 
-  const prompt = '以下を要約してください。もし英語だった場合、日本語にしてください。';
+  const prompt =
+    '以下を要約してください。もし英語だった場合、要約はせず、日本語に翻訳するだけにしてください。';
   const response = await cohere.chatStream({
     model: 'command-r-plus',
     message: `${prompt}\n${selectedText}`,

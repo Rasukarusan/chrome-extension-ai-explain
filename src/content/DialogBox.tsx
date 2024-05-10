@@ -30,7 +30,6 @@ export const DialogBox = (props: DialogBoxProps) => {
     setInterval(() => {
       (async () => {
         const explainText = (await bucket.get('explainText')).explainText;
-        console.log(explainText);
         setText(explainText);
       })();
     }, 100);

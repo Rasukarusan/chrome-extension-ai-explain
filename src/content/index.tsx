@@ -33,6 +33,7 @@ const Icon = ({ selectedText, orect }: { selectedText: string; orect: DOMRect })
           left: window.scrollX + orect.right,
           top: window.scrollY + orect.bottom,
           zIndex: 2147483550,
+          backgroundColor: '#fff',
         }}
       >
         <Tooltip label="選択したテキストを解説" withArrow>
@@ -126,7 +127,7 @@ document.addEventListener('mouseup', () => {
   }
 });
 
-// document.addEventListener('mousedown', async () => {
-//   const selection = window.getSelection();
-//   const prev = await bucket.get('explainText');
-// });
+document.addEventListener('mousedown', async () => {
+  //   const selection = window.getSelection();
+  //   const prev = await bucket.get('explainText');
+});

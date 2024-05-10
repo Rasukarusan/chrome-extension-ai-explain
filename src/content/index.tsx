@@ -6,7 +6,17 @@ import { ActionIcon, Image, Tooltip } from '@mantine/core';
 import { getBucket } from '@extend-chrome/storage';
 const bucket = getBucket('my_bucket', 'local');
 
-const Icon = ({ selectedText, orect }: { selectedText: string; orect: DOMRect }) => {
+const Icon = ({
+  selectedText,
+  orect,
+  x,
+  y,
+}: {
+  selectedText: string;
+  orect: DOMRect;
+  x: number;
+  y: number;
+}) => {
   const handleClick = async () => {
     removeIcon();
     chrome.runtime.sendMessage({
@@ -30,34 +40,36 @@ const Icon = ({ selectedText, orect }: { selectedText: string; orect: DOMRect })
       <div
         style={{
           position: 'absolute',
-          left: window.scrollX + orect.right,
-          top: window.scrollY + orect.bottom,
+          left: x - 15,
+          top: y - 15,
           zIndex: 2147483550,
           backgroundColor: '#fff',
+          borderRadius: '100px',
         }}
       >
-        <Tooltip label="選択したテキストを解説" withArrow>
-          <ActionIcon
-            radius="xl"
-            variant="default"
-            size="lg"
-            sx={{
-              boxShadow: '0 0 10px rgba(0,0,0,.3);',
+        <ActionIcon
+          radius="xl"
+          variant="default"
+          size="lg"
+          sx={{
+            boxShadow: '0 0 10px rgba(0,0,0,.3);',
+            zIndex: 2147483550,
+          }}
+          onClick={handleClick}
+        >
+          <div
+            style={{
+              width: '20px',
+              height: '20px',
               zIndex: 2147483550,
             }}
-            onClick={handleClick}
           >
-            <div
-              style={{
-                width: '20px',
-                height: '20px',
-                zIndex: 2147483550,
-              }}
-            >
-              <Image src={'https://avatars.githubusercontent.com/u/54850923?s=200&v=4'} />
-            </div>
-          </ActionIcon>
-        </Tooltip>
+            <Image
+              src={'https://avatars.githubusercontent.com/u/54850923?s=200&v=4'}
+              sx={{ backgroundColor: '#fff' }}
+            />
+          </div>
+        </ActionIcon>
       </div>
     </div>
   );
@@ -106,24 +118,32 @@ function removeIcon() {
   }
 }
 
-document.addEventListener('mouseup', () => {
+function existIcon() {
+  return document.getElementsByTagName('my-extension-root-icon').length > 0;
+}
+
+document.addEventListener('mouseup', (e) => {
   const selection = window.getSelection();
   if (!selection) {
+    removeIcon();
     return;
   }
   if (selection.toString().length > 0) {
     const oRange = selection.getRangeAt(0);
     const oRect = oRange.getBoundingClientRect();
-    if (document.getElementsByTagName('my-extension-root-icon').length > 0) {
+    if (existIcon()) {
       return;
     }
     for (let i = 0; i < document.getElementsByTagName('my-extension-root').length; i++) {
       document.getElementsByTagName('my-extension-root')[i].remove();
     }
-    removeIcon();
     const container = document.createElement('my-extension-root-icon');
     document.body.after(container);
-    createRoot(container).render(<Icon selectedText={selection.toString()} orect={oRect} />);
+    createRoot(container).render(
+      <Icon selectedText={selection.toString()} orect={oRect} x={e.pageX} y={e.pageY} />
+    );
+  } else {
+    removeIcon();
   }
 });
 

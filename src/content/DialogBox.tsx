@@ -27,12 +27,15 @@ export const DialogBox = (props: DialogBoxProps) => {
   const bucket = getBucket('my_bucket', 'local');
 
   useEffect(() => {
-    setInterval(() => {
+    const timer = setInterval(() => {
       (async () => {
         const explainText = (await bucket.get('explainText')).explainText;
         setText(explainText);
       })();
     }, 100);
+    return () => {
+      clearInterval(timer);
+    };
   }, []);
 
   useClickOutside(() => setOpened(false), null, [diaglog]);

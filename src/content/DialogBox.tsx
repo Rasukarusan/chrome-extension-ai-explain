@@ -12,29 +12,39 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { useClickOutside } from '@mantine/hooks';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MdDone, MdOutlineContentCopy, MdVolumeUp } from 'react-icons/md';
+import { getBucket } from '@extend-chrome/storage';
 
 export interface DialogBoxProps {
-  explainText: string;
-  originalText: string;
+  selectedText: string;
 }
 
 export const DialogBox = (props: DialogBoxProps) => {
-  console.log(props);
   const [opened, setOpened] = useState(true);
   const [diaglog, setDialog] = useState<HTMLDivElement | null>(null);
-  const [text, setText] = useState(props.explainText);
+  const [text, setText] = useState('');
+  const bucket = getBucket('my_bucket', 'local');
+
+  useEffect(() => {
+    setInterval(() => {
+      (async () => {
+        const explainText = (await bucket.get('explainText')).explainText;
+        console.log(explainText);
+        setText(explainText);
+      })();
+    }, 100);
+  }, []);
 
   useClickOutside(() => setOpened(false), null, [diaglog]);
-  const IconUrl = chrome.runtime.getURL('images/extension_128.png');
+  const IconUrl = 'https://avatars.githubusercontent.com/u/54850923?s=200&v=4';
 
   return opened ? (
     <Box
       sx={(theme) => ({
         textAlign: 'left',
         padding: theme.spacing.md,
-        maxWidth: 400,
+        maxWidth: 800,
         backgroundColor: 'white',
         borderRadius: theme.radius.md,
         boxShadow: '0px 0px 10px rgba(0,0,0,.3)',
@@ -46,24 +56,19 @@ export const DialogBox = (props: DialogBoxProps) => {
       <Flex pb="xs" gap="xs" justify="flex-start" align="center">
         <Avatar src={IconUrl} />
         <Text size="md" c="dark">
-          原文：{props.originalText}
+          原文：{props.selectedText}
         </Text>
       </Flex>
       <Divider />
       <Stack pt="sm" spacing="xs" style={{ textAlign: 'left' }}>
-        <Text size="sm" c="dark">
+        <Text size="md" c="dark">
           {text}
         </Text>
         <Group position="right" spacing="xs">
-          <Tooltip label="音声読み上げ" withArrow>
-            <ActionIcon>
-              <MdVolumeUp />
-            </ActionIcon>
-          </Tooltip>
           <CopyButton value={text}>
             {({ copied, copy }) => (
               <Tooltip label={copied ? '訳文をコピーしました' : 'クリップボードにコピー'} withArrow>
-                <ActionIcon onClick={copy}>
+                <ActionIcon onClick={copy} size="md">
                   {copied ? <MdDone /> : <MdOutlineContentCopy />}
                 </ActionIcon>
               </Tooltip>

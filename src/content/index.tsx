@@ -3,10 +3,11 @@ import { createRoot } from 'react-dom/client';
 import Content from './Content';
 import { MantineProvider } from '@mantine/core';
 import { ActionIcon, Image, Tooltip } from '@mantine/core';
+import { getBucket } from '@extend-chrome/storage';
+const bucket = getBucket('my_bucket', 'local');
 
 const Icon = ({ selectedText, orect }: { selectedText: string; orect: DOMRect }) => {
   const handleClick = async () => {
-    console.log('hei');
     removeIcon();
     chrome.runtime.sendMessage({
       type: 'EXPLAIN',
@@ -52,7 +53,7 @@ const Icon = ({ selectedText, orect }: { selectedText: string; orect: DOMRect })
                 zIndex: 2147483550,
               }}
             >
-              <Image src={chrome.runtime.getURL('images/extension_128.png')} />
+              <Image src={'https://avatars.githubusercontent.com/u/54850923?s=200&v=4'} />
             </div>
           </ActionIcon>
         </Tooltip>
@@ -62,8 +63,17 @@ const Icon = ({ selectedText, orect }: { selectedText: string; orect: DOMRect })
 };
 
 chrome.runtime.onMessage.addListener(async function (message, sender, sendResponse) {
-  console.log('mess====>', message);
+  if (message.type === 'RESULT') {
+    const prev = await bucket.get('explainText');
+    if (prev.explainText) {
+      bucket.set({ explainText: prev.explainText + message.data.text });
+    } else {
+      bucket.set({ explainText: message.data.text });
+    }
+  }
+
   if (message.type === 'SHOW') {
+    bucket.clear();
     const selection = window.getSelection();
     if (selection?.toString()) {
       const oRange = selection.getRangeAt(0);
@@ -81,11 +91,7 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
       createRoot(container).render(
         <React.StrictMode>
           <MantineProvider>
-            <Content
-              orect={oRect}
-              explainText={message.data.explainText}
-              originalText={message.data.originalText}
-            />
+            <Content orect={oRect} selectedText={message.data.selectedText} />
           </MantineProvider>
         </React.StrictMode>
       );
@@ -100,9 +106,7 @@ function removeIcon() {
 }
 
 document.addEventListener('mouseup', () => {
-  console.log('mouseup');
   const selection = window.getSelection();
-  console.log(selection?.toString());
   if (!selection) {
     return;
   }
@@ -122,7 +126,7 @@ document.addEventListener('mouseup', () => {
   }
 });
 
-document.addEventListener('mousedown', () => {
-  console.log('down');
-  const selection = window.getSelection();
-});
+// document.addEventListener('mousedown', async () => {
+//   const selection = window.getSelection();
+//   const prev = await bucket.get('explainText');
+// });

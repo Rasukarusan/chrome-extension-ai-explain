@@ -6,36 +6,33 @@ import {
   Divider,
   Flex,
   Group,
-  Select,
   Stack,
   Text,
   Tooltip,
 } from '@mantine/core';
 import { useClickOutside } from '@mantine/hooks';
 import { useEffect, useState } from 'react';
-import { MdDone, MdOutlineContentCopy, MdVolumeUp } from 'react-icons/md';
-import { getBucket } from '@extend-chrome/storage';
+import { MdDone, MdOutlineContentCopy } from 'react-icons/md';
+import { useAtomValue } from 'jotai';
+import { explainTextAtom } from '../store/explainText/atom';
+import ReactMarkdown from 'react-markdown';
+import { useChat } from './useChat';
 
 export interface DialogBoxProps {
   selectedText: string;
 }
 
 export const DialogBox = (props: DialogBoxProps) => {
+  const { selectedText } = props;
   const [opened, setOpened] = useState(true);
   const [diaglog, setDialog] = useState<HTMLDivElement | null>(null);
-  const [text, setText] = useState('');
-  const bucket = getBucket('my_bucket', 'local');
+  const explainText = useAtomValue(explainTextAtom);
+  const { chat } = useChat();
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      (async () => {
-        const explainText = (await bucket.get('explainText')).explainText;
-        setText(explainText);
-      })();
-    }, 100);
-    return () => {
-      clearInterval(timer);
-    };
+    (async () => {
+      await chat(props.selectedText);
+    })();
   }, []);
 
   useClickOutside(() => setOpened(false), null, [diaglog]);
@@ -58,16 +55,14 @@ export const DialogBox = (props: DialogBoxProps) => {
       <Flex pb="xs" gap="xs" justify="flex-start" align="center">
         <Avatar src={IconUrl} />
         <Text size="md" c="dark">
-          原文：{props.selectedText}
+          原文：{selectedText}
         </Text>
       </Flex>
       <Divider />
       <Stack pt="sm" spacing="xs" style={{ textAlign: 'left' }}>
-        <Text size="md" c="dark">
-          {text}
-        </Text>
+        <ReactMarkdown>{explainText}</ReactMarkdown>
         <Group position="right" spacing="xs">
-          <CopyButton value={text}>
+          <CopyButton value={explainText}>
             {({ copied, copy }) => (
               <Tooltip label={copied ? '訳文をコピーしました' : 'クリップボードにコピー'} withArrow>
                 <ActionIcon onClick={copy} size="md">

@@ -17,10 +17,14 @@
     "ecmaVersion": 2020,
     "ecmaFeatures": { "jsx": true }
   },
-  "plugins": ["@typescript-eslint", "prettier", "react", "react-hooks"],
+  "plugins": ["@typescript-eslint", "prettier", "react", "react-hooks", "unused-imports"],
   "rules": {
     "react/react-in-jsx-scope": "off",
-    "prettier/prettier": 0
+    "prettier/prettier": 0,
+    "no-constant-condition": "off",
+    "no-empty": "off",
+    "unused-imports/no-unused-imports-ts": "warn",
+    "@typescript-eslint/no-empty-function": "off"
   },
   "overrides": [
     {

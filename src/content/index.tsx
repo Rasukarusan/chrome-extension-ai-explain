@@ -53,7 +53,7 @@ const Icon = ({ selectedText, x, y }: { selectedText: string; x: number; y: numb
             }}
           >
             <Image
-              src={'https://avatars.githubusercontent.com/u/54850923?s=200&v=4'}
+              src={chrome.runtime.getURL('images/extension_128.png')}
               sx={{ backgroundColor: '#fff' }}
             />
           </div>

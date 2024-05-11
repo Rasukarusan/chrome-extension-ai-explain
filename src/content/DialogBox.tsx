@@ -29,7 +29,7 @@ export const DialogBox = (props: DialogBoxProps) => {
   }, []);
 
   useClickOutside(() => setOpened(false), null, [diaglog]);
-  const IconUrl = 'https://avatars.githubusercontent.com/u/54850923?s=200&v=4';
+  const IconUrl = chrome.runtime.getURL('images/extension_128.png');
 
   return opened ? (
     <Box

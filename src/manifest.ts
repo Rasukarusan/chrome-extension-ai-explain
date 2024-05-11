@@ -33,6 +33,12 @@ const manifest = defineManifest(async (env) => ({
     '48': 'images/extension_48.png',
     '128': 'images/extension_128.png',
   },
+  web_accessible_resources: [
+    {
+      resources: ['images/extension_128.png'],
+      matches: ['<all_urls>'],
+    },
+  ],
   permissions: ['storage', 'tabs', 'contextMenus'],
   host_permissions: [],
 }));

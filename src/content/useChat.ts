@@ -21,7 +21,7 @@ export const useChat = () => {
         ],
         // model: 'llama3-8b-8192',
         model: 'llama3-70b-8192',
-        // stream: true,
+        stream: true,
       }),
     });
     const reader = res.body?.getReader();
@@ -34,22 +34,21 @@ export const useChat = () => {
       if (!value) continue;
       const lines = decoder.decode(value);
       // console.log(JSON.parse(lines).choices[0].message.content);
-      setExplainText(JSON.parse(lines).choices[0].message.content);
-      // const jsons = lines
-      //   .split('data: ')
-      //   .map((line) => line.trim())
-      //   .filter((s) => s);
-      // for (const json of jsons) {
-      //   try {
-      //     if (json === '[DONE]') {
-      //       return;
-      //     }
-      //     const chunk = JSON.parse(json);
-      //     const text = chunk.choices[0].delta.content || '';
-      //     console.log(text);
-      //     setExplainText((prev) => prev + text);
-      //   } catch (e) {}
-      // }
+      // setExplainText(JSON.parse(lines).choices[0].message.content);
+      const jsons = lines
+        .split('data: ')
+        .map((line) => line.trim())
+        .filter((s) => s);
+      for (const json of jsons) {
+        try {
+          if (json === '[DONE]') {
+            return;
+          }
+          const chunk = JSON.parse(json);
+          const text = chunk.choices[0].delta.content || '';
+          setExplainText((prev) => prev + text);
+        } catch (e) {}
+      }
     }
   };
   return { chat };

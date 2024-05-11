@@ -3,10 +3,15 @@ import { createRoot } from 'react-dom/client';
 import Content from './Content';
 import { MantineProvider } from '@mantine/core';
 import { ActionIcon, Image } from '@mantine/core';
+import '../global.css';
+import { useSetAtom } from 'jotai';
+import { selectedTextAtom } from '../store/selectedText/atom';
 
 const Icon = ({ selectedText, x, y }: { selectedText: string; x: number; y: number }) => {
+  const setSelectedText = useSetAtom(selectedTextAtom);
   const handleClick = async () => {
     removeIcon();
+    setSelectedText(selectedText);
     showDialog(selectedText);
   };
 
@@ -74,11 +79,9 @@ function showDialog(selectedText: string) {
     document.body.after(container);
 
     createRoot(container).render(
-      <React.StrictMode>
-        <MantineProvider>
-          <Content orect={oRect} selectedText={selectedText} />
-        </MantineProvider>
-      </React.StrictMode>
+      <MantineProvider>
+        <Content orect={oRect} selectedText={selectedText} />
+      </MantineProvider>
     );
   }
 }
@@ -110,7 +113,7 @@ document.addEventListener('mouseup', (e) => {
       return;
     }
     for (let i = 0; i < document.getElementsByTagName('my-extension-root').length; i++) {
-      document.getElementsByTagName('my-extension-root')[i].remove();
+      // document.getElementsByTagName('my-extension-root')[i].remove();
     }
     const container = document.createElement('my-extension-root-icon');
     document.body.after(container);

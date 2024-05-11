@@ -1,37 +1,30 @@
-import {
-  ActionIcon,
-  Avatar,
-  Box,
-  CopyButton,
-  Divider,
-  Flex,
-  Group,
-  Stack,
-  Text,
-  Tooltip,
-} from '@mantine/core';
+import { ActionIcon, Avatar, Box, Divider, Flex, Stack, Text, Input } from '@mantine/core';
 import { useClickOutside } from '@mantine/hooks';
 import { useEffect, useState } from 'react';
-import { MdDone, MdOutlineContentCopy } from 'react-icons/md';
-import { useAtomValue } from 'jotai';
+import { BsFillSendFill } from 'react-icons/bs';
+import { useAtom, useAtomValue } from 'jotai';
 import { explainTextAtom } from '../store/explainText/atom';
 import ReactMarkdown from 'react-markdown';
 import { useChat } from './useChat';
+import { TfiReload } from 'react-icons/tfi';
+import { selectedTextAtom } from '../store/selectedText/atom';
 
 export interface DialogBoxProps {
   selectedText: string;
 }
 
 export const DialogBox = (props: DialogBoxProps) => {
-  const { selectedText } = props;
+  const [selectedText, setSelectedText] = useAtom(selectedTextAtom);
+  const [input, setInput] = useState('');
   const [opened, setOpened] = useState(true);
   const [diaglog, setDialog] = useState<HTMLDivElement | null>(null);
   const explainText = useAtomValue(explainTextAtom);
   const { chat } = useChat();
 
   useEffect(() => {
+    setSelectedText(props.selectedText);
     (async () => {
-      await chat(props.selectedText);
+      await chat(props.selectedText ? props.selectedText : selectedText);
     })();
   }, []);
 
@@ -61,17 +54,40 @@ export const DialogBox = (props: DialogBoxProps) => {
       <Divider />
       <Stack pt="sm" spacing="xs" style={{ textAlign: 'left' }}>
         <ReactMarkdown>{explainText}</ReactMarkdown>
-        <Group position="right" spacing="xs">
-          <CopyButton value={explainText}>
-            {({ copied, copy }) => (
-              <Tooltip label={copied ? '訳文をコピーしました' : 'クリップボードにコピー'} withArrow>
-                <ActionIcon onClick={copy} size="md">
-                  {copied ? <MdDone /> : <MdOutlineContentCopy />}
-                </ActionIcon>
-              </Tooltip>
-            )}
-          </CopyButton>
-        </Group>
+        <div
+          className="flex items-center justify-between w-full"
+          style={{ justifyContent: 'space-between' }}
+        >
+          <Input
+            placeholder="メッセージ..."
+            width="100%"
+            style={{ width: '90%' }}
+            value={input}
+            onChange={(e) => {
+              setInput(e.target.value);
+            }}
+          />
+          <ActionIcon
+            onClick={async () => {
+              await chat(input);
+              setSelectedText(input);
+              setInput('');
+            }}
+            size="md"
+          >
+            <BsFillSendFill />
+          </ActionIcon>
+          <ActionIcon
+            onClick={async (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              await chat(selectedText);
+            }}
+            size="md"
+          >
+            <TfiReload />
+          </ActionIcon>
+        </div>
       </Stack>
     </Box>
   ) : (

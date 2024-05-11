@@ -1,4 +1,4 @@
-import { ActionIcon, Avatar, Box, Divider, Flex, Stack, Text, Input } from '@mantine/core';
+import { ActionIcon, Avatar, Box, Divider, Flex, Stack, Text, Textarea } from '@mantine/core';
 import { useClickOutside } from '@mantine/hooks';
 import { useEffect, useState } from 'react';
 import { BsFillSendFill } from 'react-icons/bs';
@@ -8,6 +8,7 @@ import ReactMarkdown from 'react-markdown';
 import { useChat } from './useChat';
 import { TfiReload } from 'react-icons/tfi';
 import { selectedTextAtom } from '../store/selectedText/atom';
+import '../global.css';
 
 export interface DialogBoxProps {
   selectedText: string;
@@ -53,7 +54,7 @@ export const DialogBox = (props: DialogBoxProps) => {
       </Flex>
       <Divider />
       <Stack pt="sm" spacing="xs" style={{ textAlign: 'left' }}>
-        <ReactMarkdown>{explainText}</ReactMarkdown>
+        <ReactMarkdown className="text-black">{explainText}</ReactMarkdown>
         <div
           style={{
             width: '100%',
@@ -62,9 +63,9 @@ export const DialogBox = (props: DialogBoxProps) => {
             justifyContent: 'space-between',
           }}
         >
-          <Input
+          <Textarea
+            minRows={1}
             placeholder="メッセージ..."
-            width="100%"
             style={{ width: '90%' }}
             value={input}
             onChange={(e) => {

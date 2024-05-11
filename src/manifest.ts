@@ -7,8 +7,8 @@ import { version } from '../package.json';
 
 const manifest = defineManifest(async (env) => ({
   manifest_version: 3,
-  name: 'AI解説君',
-  description: '選択したテキストをAI解説',
+  name: 'AI要約君',
+  description: '選択したテキストをAI要約',
   version,
   background: {
     service_worker: 'background/index.ts',

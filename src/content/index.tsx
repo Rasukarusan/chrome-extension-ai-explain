@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import Content from './Content';
 import { MantineProvider } from '@mantine/core';
 import { ActionIcon, Image } from '@mantine/core';
-import '../global.css';
+// import '../global.css';
 import { useSetAtom } from 'jotai';
 import { selectedTextAtom } from '../store/selectedText/atom';
 

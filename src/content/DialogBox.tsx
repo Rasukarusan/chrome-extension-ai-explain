@@ -55,8 +55,12 @@ export const DialogBox = (props: DialogBoxProps) => {
       <Stack pt="sm" spacing="xs" style={{ textAlign: 'left' }}>
         <ReactMarkdown>{explainText}</ReactMarkdown>
         <div
-          className="flex items-center justify-between w-full"
-          style={{ justifyContent: 'space-between' }}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
         >
           <Input
             placeholder="メッセージ..."

@@ -1,6 +1,6 @@
-import { ActionIcon, Avatar, Box, Divider, Flex, Stack, Text, Textarea } from '@mantine/core';
+import { ActionIcon, Avatar, Divider, Flex, Stack, Text, Textarea } from '@mantine/core';
 import { useClickOutside } from '@mantine/hooks';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { explainTextAtom } from '../store/explainText/atom';
 import ReactMarkdown from 'react-markdown';
@@ -22,6 +22,8 @@ export const DialogBox = (props: DialogBoxProps) => {
   const explainText = useAtomValue(explainTextAtom);
   const { chat } = useChat();
   const bucket = getBucket('chat_history');
+  const boxRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     setSelectedText(props.selectedText);
@@ -66,19 +68,33 @@ export const DialogBox = (props: DialogBoxProps) => {
     setInput('');
   };
 
-  return opened ? (
-    <Box
-      sx={(theme) => ({
-        textAlign: 'left',
-        padding: theme.spacing.md,
-        maxWidth: 800,
+  if (!opened) return null;
+  return (
+    <div
+      style={{
+        padding: '16px',
         backgroundColor: 'white',
-        borderRadius: theme.radius.md,
         boxShadow: '0px 0px 10px rgba(0,0,0,.3)',
+        borderRadius: '8px',
         zIndex: 2147483550,
-      })}
-      component="div"
+        position: 'absolute',
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        width: '800px',
+      }}
+      draggable={false}
       ref={setDialog}
+      onPointerMove={(event) => {
+        // テキストが選択されているかどうかを確認
+        const selection = window.getSelection();
+        if (event.buttons && (selection === null || selection.toString().length === 0)) {
+          setPosition((prevPosition) => ({
+            x: prevPosition.x + event.movementX,
+            y: prevPosition.y + event.movementY,
+          }));
+          boxRef?.current?.setPointerCapture(event.pointerId);
+        }
+      }}
     >
       <Flex pb="xs" gap="xs" justify="flex-start" align="center">
         <Avatar src={IconUrl} />
@@ -118,8 +134,6 @@ export const DialogBox = (props: DialogBoxProps) => {
           </ActionIcon>
         </div>
       </Stack>
-    </Box>
-  ) : (
-    <></>
+    </div>
   );
 };

@@ -1,10 +1,12 @@
 import { useSetAtom } from 'jotai';
 import { explainTextAtom } from '../store/explainText/atom';
+import { getBucket } from '@extend-chrome/storage';
 
 export const useChat = () => {
   const setExplainText = useSetAtom(explainTextAtom);
+  const bucket = getBucket('chat_history');
 
-  const chat = async (selectedText: string) => {
+  const chat = async (messages: Record<string, string>[]) => {
     setExplainText('');
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -13,12 +15,7 @@ export const useChat = () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        messages: [
-          {
-            role: 'user',
-            content: `あなたは優秀なAIアシスタントです。必ず日本語で回答してください。以下を要約してください。もし英語だった場合、要約はせず、日本語に翻訳するだけにしてください。前置きは出力しないでいきなり本文から出力してください。\n${selectedText}`,
-          },
-        ],
+        messages,
         // model: 'llama3-8b-8192',
         model: 'llama3-70b-8192',
         stream: true,
@@ -28,6 +25,7 @@ export const useChat = () => {
     if (!reader) return;
 
     const decoder = new TextDecoder();
+    let wholeText = '';
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
@@ -42,10 +40,21 @@ export const useChat = () => {
       for (const json of jsons) {
         try {
           if (json === '[DONE]') {
+            bucket.set({
+              messages: [
+                ...messages,
+                {
+                  role: 'assistant',
+                  content: wholeText,
+                },
+              ],
+            });
+            wholeText = '';
             return;
           }
           const chunk = JSON.parse(json);
           const text = chunk.choices[0].delta.content || '';
+          wholeText += text;
           setExplainText((prev) => prev + text);
         } catch (e) {}
       }

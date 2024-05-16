@@ -1,14 +1,14 @@
 import { ActionIcon, Avatar, Box, Divider, Flex, Stack, Text, Textarea } from '@mantine/core';
 import { useClickOutside } from '@mantine/hooks';
 import { useEffect, useState } from 'react';
-import { BsFillSendFill } from 'react-icons/bs';
 import { useAtom, useAtomValue } from 'jotai';
 import { explainTextAtom } from '../store/explainText/atom';
 import ReactMarkdown from 'react-markdown';
 import { useChat } from './useChat';
-import { TfiReload } from 'react-icons/tfi';
 import { selectedTextAtom } from '../store/selectedText/atom';
 import '../global.css';
+import { getBucket } from '@extend-chrome/storage';
+import { FaArrowUp } from 'react-icons/fa';
 
 export interface DialogBoxProps {
   selectedText: string;
@@ -21,16 +21,50 @@ export const DialogBox = (props: DialogBoxProps) => {
   const [diaglog, setDialog] = useState<HTMLDivElement | null>(null);
   const explainText = useAtomValue(explainTextAtom);
   const { chat } = useChat();
+  const bucket = getBucket('chat_history');
 
   useEffect(() => {
     setSelectedText(props.selectedText);
     (async () => {
-      await chat(props.selectedText ? props.selectedText : selectedText);
+      const messages = [
+        {
+          role: 'system',
+          content:
+            'あなたは優秀なAIアシスタントです。必ず日本語で回答してください。以下を要約してください。もし英語だった場合、要約はせず、日本語に翻訳するだけにしてください。前置きは出力しないでいきなり本文から出力してください。',
+        },
+        {
+          role: 'user',
+          content: props.selectedText ? props.selectedText : selectedText,
+        },
+      ];
+      await bucket.set({ messages });
+      await chat(messages);
     })();
   }, []);
 
-  useClickOutside(() => setOpened(false), null, [diaglog]);
+  useClickOutside(
+    () => {
+      bucket.clear();
+      setOpened(false);
+    },
+    null,
+    [diaglog]
+  );
   const IconUrl = chrome.runtime.getURL('images/extension_128.png');
+
+  const onSubmit = async () => {
+    const history = await bucket.get();
+    const messages = [
+      ...history.messages,
+      {
+        role: 'user',
+        content: input,
+      },
+    ];
+    await chat(messages);
+    setSelectedText(input);
+    setInput('');
+  };
 
   return opened ? (
     <Box
@@ -66,31 +100,21 @@ export const DialogBox = (props: DialogBoxProps) => {
           <Textarea
             minRows={1}
             placeholder="メッセージ..."
-            style={{ width: '90%' }}
+            style={{ width: '100%', marginRight: '8px' }}
             value={input}
             onChange={(e) => {
               setInput(e.target.value);
             }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && e.shiftKey) {
+                setInput(input);
+              } else if (e.key === 'Enter') {
+                onSubmit();
+              }
+            }}
           />
-          <ActionIcon
-            onClick={async () => {
-              await chat(input);
-              setSelectedText(input);
-              setInput('');
-            }}
-            size="md"
-          >
-            <BsFillSendFill />
-          </ActionIcon>
-          <ActionIcon
-            onClick={async (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              await chat(selectedText);
-            }}
-            size="md"
-          >
-            <TfiReload />
+          <ActionIcon onClick={onSubmit} size="xl">
+            <FaArrowUp className="text-gray" size={20} />
           </ActionIcon>
         </div>
       </Stack>

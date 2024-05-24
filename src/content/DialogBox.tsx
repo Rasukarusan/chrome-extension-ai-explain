@@ -24,6 +24,7 @@ export const DialogBox = (props: DialogBoxProps) => {
   const bucket = getBucket('chat_history');
   const boxRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [canMove, setCanMove] = useState(true);
 
   useEffect(() => {
     setSelectedText(props.selectedText);
@@ -47,6 +48,7 @@ export const DialogBox = (props: DialogBoxProps) => {
   useClickOutside(
     () => {
       bucket.clear();
+      setCanMove(false);
       setOpened(false);
     },
     null,
@@ -67,6 +69,36 @@ export const DialogBox = (props: DialogBoxProps) => {
     setSelectedText(input);
     setInput('');
   };
+
+  const handleKeyDown = (event) => {
+    if (!canMove) {
+      return;
+    }
+    if (event.key === 'ArrowRight') {
+      setPosition((prev) => {
+        return { ...prev, x: prev.x + 30 };
+      });
+    } else if (event.key === 'ArrowLeft') {
+      setPosition((prev) => {
+        return { ...prev, x: prev.x - 30 };
+      });
+    } else if (event.key === 'ArrowDown') {
+      setPosition((prev) => {
+        return { ...prev, y: prev.y + 30 };
+      });
+    } else if (event.key === 'ArrowUp') {
+      setPosition((prev) => {
+        return { ...prev, y: prev.y - 30 };
+      });
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [canMove]);
 
   if (!opened) return null;
   return (
@@ -114,6 +146,8 @@ export const DialogBox = (props: DialogBoxProps) => {
           }}
         >
           <Textarea
+            onFocus={() => setCanMove(false)}
+            onBlur={() => setCanMove(true)}
             minRows={1}
             placeholder="メッセージ..."
             style={{ width: '100%', marginRight: '8px' }}

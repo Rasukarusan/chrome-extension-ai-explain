@@ -25,7 +25,8 @@
     "no-empty": "off",
     "unused-imports/no-unused-imports-ts": "warn",
     "@typescript-eslint/no-empty-function": "off",
-    "@typescript-eslint/no-empty-interface": "off"
+    "@typescript-eslint/no-empty-interface": "off",
+    "react/prop-types": "off"
   },
   "overrides": [
     {

@@ -33,7 +33,7 @@ export const DialogBox = (props: DialogBoxProps) => {
         {
           role: 'system',
           content:
-            'あなたは優秀なAIアシスタントです。必ず日本語で回答してください。以下を要約してください。もし英語だった場合、要約はせず、日本語に翻訳するだけにしてください。前置きは出力しないでいきなり本文から出力してください。',
+            'あなたは優秀なAIアシスタントです。必ず日本語で回答してください。以下を要約もしくは解説してください。極限までわかりやすく説明してください。もし英語だった場合、要約はせず、日本語に翻訳するだけにしてください。前置きは出力しないでいきなり本文から出力してください。',
         },
         {
           role: 'user',
@@ -136,7 +136,15 @@ export const DialogBox = (props: DialogBoxProps) => {
       </Flex>
       <Divider />
       <Stack pt="sm" spacing="xs" style={{ textAlign: 'left' }}>
-        <ReactMarkdown className="text-black">{explainText}</ReactMarkdown>
+        <ReactMarkdown
+          className="text-black"
+          components={{
+            ul: ({ ...props }) => <ul style={{ marginLeft: '14px' }}>{props.children}</ul>,
+            ol: ({ ...props }) => <ol style={{ marginLeft: '18px' }}>{props.children}</ol>,
+          }}
+        >
+          {explainText}
+        </ReactMarkdown>
         <div
           style={{
             width: '100%',

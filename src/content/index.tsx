@@ -28,8 +28,8 @@ const Icon = ({ selectedText, x, y }: { selectedText: string; x: number; y: numb
       <div
         style={{
           position: 'absolute',
-          left: x - 15,
-          top: y - 15,
+          left: x,
+          top: y,
           zIndex: 2147483550,
           backgroundColor: '#fff',
           borderRadius: '100px',

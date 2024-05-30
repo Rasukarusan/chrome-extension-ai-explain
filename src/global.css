@@ -1,13 +1,11 @@
-/* shared tailwind.css except content script */
-
-/* @tailwind base; */
-/* @tailwind components; */
-/* @tailwind utilities; */
-
 .text-black {
   color: #25262b;
 }
 
 .text-gray {
   color: #414141;
+}
+
+li {
+  list-style: auto;
 }

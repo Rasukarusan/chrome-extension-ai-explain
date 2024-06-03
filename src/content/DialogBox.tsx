@@ -141,6 +141,7 @@ export const DialogBox = (props: DialogBoxProps) => {
           components={{
             ul: ({ ...props }) => <ul style={{ marginLeft: '14px' }}>{props.children}</ul>,
             ol: ({ ...props }) => <ol style={{ marginLeft: '18px' }}>{props.children}</ol>,
+            li: ({ ...props }) => <li style={{ listStyle: 'auto' }}>{props.children}</li>,
           }}
         >
           {explainText}

@@ -12,6 +12,8 @@ This Chrome extension allows you to select words on a webpage and click an icon 
 
 ## ⚙️ Setup
 
+set your Groq API Key.
+
 `.env`
 
 ```sh

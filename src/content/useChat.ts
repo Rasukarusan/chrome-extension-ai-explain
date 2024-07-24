@@ -17,7 +17,8 @@ export const useChat = () => {
       body: JSON.stringify({
         messages,
         // model: 'llama3-8b-8192',
-        model: 'llama3-70b-8192',
+        // model: 'llama3-70b-8192',
+        model: 'llama-3.1-70b-versatile',
         stream: true,
       }),
     });

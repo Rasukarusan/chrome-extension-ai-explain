@@ -18,10 +18,11 @@ export const useChat = () => {
         messages,
         // model: 'llama3-8b-8192',
         // model: 'llama3-70b-8192',
-        model: 'llama-3.1-70b-versatile',
+        model: 'llama-3.3-70b-versatile',
         stream: true,
       }),
     });
+
     const reader = res.body?.getReader();
     if (!reader) return;
 

@@ -18,13 +18,12 @@ export const DialogBox = (props: DialogBoxProps) => {
   const [selectedText, setSelectedText] = useAtom(selectedTextAtom);
   const [input, setInput] = useState('');
   const [opened, setOpened] = useState(true);
-  const [diaglog, setDialog] = useState<HTMLDivElement | null>(null);
   const explainText = useAtomValue(explainTextAtom);
   const { chat } = useChat();
   const bucket = getBucket('chat_history');
-  const boxRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [canMove, setCanMove] = useState(true);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setSelectedText(props.selectedText);
@@ -52,7 +51,7 @@ export const DialogBox = (props: DialogBoxProps) => {
       setOpened(false);
     },
     null,
-    [diaglog]
+    [dialogRef.current]
   );
   const IconUrl = chrome.runtime.getURL('images/extension_128.png');
 
@@ -115,16 +114,21 @@ export const DialogBox = (props: DialogBoxProps) => {
         width: '800px',
       }}
       draggable={false}
-      ref={setDialog}
+      ref={dialogRef}
       onPointerMove={(event) => {
-        // テキストが選択されているかどうかを確認
-        const selection = window.getSelection();
-        if (event.buttons && (selection === null || selection.toString().length === 0)) {
-          setPosition((prevPosition) => ({
-            x: prevPosition.x + event.movementX,
-            y: prevPosition.y + event.movementY,
-          }));
-          boxRef?.current?.setPointerCapture(event.pointerId);
+        const dialog = dialogRef.current;
+        // ボタンが押されている場合に処理を実行
+        if (event.buttons) {
+          // 現在の左位置にマウスの移動量を加算
+          dialog.style.left = dialog.offsetLeft + event.movementX + 'px';
+          // 現在の上位置にマウスの移動量を加算
+          dialog.style.top = dialog.offsetTop + event.movementY + 'px';
+          // 位置指定を有効にするため、positionをabsoluteに設定
+          dialog.style.position = 'absolute';
+          // ドラッグ操作を無効にする
+          dialog.draggable = false;
+          // ポインターキャプチャを設定
+          dialog.setPointerCapture(event.pointerId);
         }
       }}
     >
